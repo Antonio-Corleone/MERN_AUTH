@@ -1,5 +1,6 @@
 import React from "react";
 import { Container, Card, Button } from "react-bootstrap";
+import { LinkContainer } from "react-router-bootstrap";
 
 const Hero: React.FC = () => {
   return (
@@ -13,12 +14,14 @@ const Hero: React.FC = () => {
             Bootstrap library
           </p>
           <div className="d-flex">
-            <Button variant="primary" href="/login" className="me-3">
-              Sign In
-            </Button>
-            <Button variant="secondary" href="/register">
-              Register
-            </Button>
+            <LinkContainer to="/login">
+              <Button variant="primary" className="me-3">
+                Sign In
+              </Button>
+            </LinkContainer>
+            <LinkContainer to="/register">
+              <Button variant="secondary">Register</Button>
+            </LinkContainer>
           </div>
         </Card>
       </Container>

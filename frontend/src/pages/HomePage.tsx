@@ -4,7 +4,7 @@ const HomePage: React.FC = () => {
   console.log("render");
 
   return (
-    <div className="vh-100">
+    <div>
       <Hero />
     </div>
   );
