@@ -1,8 +1,12 @@
 import React from "react";
 import { Container, Card, Button } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 const Hero: React.FC = () => {
+  const { userInfo } = useSelector((state: RootState) => state.auth);
+
   return (
     <div className="py-5">
       <Container className="d-flex justify-content-center">
@@ -13,16 +17,24 @@ const Hero: React.FC = () => {
             an HTTP-Only cookie. It also uses Redux Toolkit and the React
             Bootstrap library
           </p>
-          <div className="d-flex">
-            <LinkContainer to="/login">
-              <Button variant="primary" className="me-3">
-                Sign In
-              </Button>
-            </LinkContainer>
-            <LinkContainer to="/register">
-              <Button variant="secondary">Register</Button>
-            </LinkContainer>
-          </div>
+          {userInfo ? (
+            <>
+              <p>
+                <b>Welcome</b> You has logged in
+              </p>
+            </>
+          ) : (
+            <div className="d-flex">
+              <LinkContainer to="/login">
+                <Button variant="primary" className="me-3">
+                  Sign In
+                </Button>
+              </LinkContainer>
+              <LinkContainer to="/register">
+                <Button variant="secondary">Register</Button>
+              </LinkContainer>
+            </div>
+          )}
         </Card>
       </Container>
     </div>
