@@ -1,20 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { useLoginMutation } from "../redux/slices/userApiSlice";
+import { setCredentials } from "../redux/slices/authSlices";
 import FormContainer from "../components/FormContainer";
+import { RootState } from "../redux/store";
+import Loader from "../components/Loader";
 
 interface userTypes {
   email: string;
   password: string;
 }
 const LoginPage: React.FC = () => {
-  const [userInfo, setUserInfo] = useState<userTypes>({
+  const [userData, setUserData] = useState<userTypes>({
     email: "",
     password: "",
   });
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [login, { isLoading }] = useLoginMutation();
+  const { userInfo } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    if (userInfo) {
+      navigate("/");
+    }
+  }, [navigate, userInfo]);
+
   const handleSubmitFrom = async (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(userInfo);
+    try {
+      const res = await login(userData).unwrap();
+      dispatch(setCredentials({ ...res }));
+      navigate("/");
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.error);
+    }
   };
   return (
     <FormContainer>
@@ -25,10 +48,10 @@ const LoginPage: React.FC = () => {
           <Form.Control
             type="email"
             placeholder="Enter your email"
-            value={userInfo.email}
+            value={userData.email}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setUserInfo({
-                ...userInfo,
+              setUserData({
+                ...userData,
                 email: e.target.value,
               })
             }
@@ -39,15 +62,16 @@ const LoginPage: React.FC = () => {
           <Form.Control
             type="password"
             placeholder="Enter your password"
-            value={userInfo.password}
+            value={userData.password}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setUserInfo({
-                ...userInfo,
+              setUserData({
+                ...userData,
                 password: e.target.value,
               })
             }
           ></Form.Control>
         </Form.Group>
+        {isLoading && <Loader />}
         <Button type="submit" variant="primary" className="mt-3">
           Sign In
         </Button>
