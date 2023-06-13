@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { useRegisterMutation } from "../redux/slices/userApiSlice";
 import FormContainer from "../components/FormContainer";
+import { setCredentials } from "../redux/slices/authSlices";
+import { RootState } from "../redux/store";
+import Loader from "../components/Loader";
 
 interface userTypes {
   name: string;
@@ -10,15 +16,42 @@ interface userTypes {
   confirmPassword: string;
 }
 const RegisterPage: React.FC = () => {
-  const [userInfo, setUserInfo] = useState<userTypes>({
+  const [userData, setUserData] = useState<userTypes>({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [register, { isLoading }] = useRegisterMutation();
+  const { userInfo } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    if (userInfo) {
+      navigate("/");
+    }
+  }, [navigate, userInfo]);
+
   const handleSubmitFrom = async (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(userInfo);
+    if (userData.password !== userData.confirmPassword) {
+      toast.error("Passwords do not match");
+    } else {
+      try {
+        const newUser = {
+          name: userData.name,
+          email: userData.email,
+          password: userData.password,
+        };
+        const res = await register(newUser).unwrap();
+        dispatch(setCredentials({ ...res }));
+        navigate("/");
+      } catch (err: any) {
+        toast.error(err?.data?.message || err.error);
+      }
+    }
   };
   return (
     <FormContainer>
@@ -29,10 +62,10 @@ const RegisterPage: React.FC = () => {
           <Form.Control
             type="name"
             placeholder="Enter your name"
-            value={userInfo.name}
+            value={userData.name}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setUserInfo({
-                ...userInfo,
+              setUserData({
+                ...userData,
                 name: e.target.value,
               })
             }
@@ -43,10 +76,10 @@ const RegisterPage: React.FC = () => {
           <Form.Control
             type="email"
             placeholder="Enter your email"
-            value={userInfo.email}
+            value={userData.email}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setUserInfo({
-                ...userInfo,
+              setUserData({
+                ...userData,
                 email: e.target.value,
               })
             }
@@ -57,10 +90,10 @@ const RegisterPage: React.FC = () => {
           <Form.Control
             type="password"
             placeholder="Enter your password"
-            value={userInfo.password}
+            value={userData.password}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setUserInfo({
-                ...userInfo,
+              setUserData({
+                ...userData,
                 password: e.target.value,
               })
             }
@@ -71,10 +104,10 @@ const RegisterPage: React.FC = () => {
           <Form.Control
             type="password"
             placeholder="Confirm password"
-            value={userInfo.confirmPassword}
+            value={userData.confirmPassword}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setUserInfo({
-                ...userInfo,
+              setUserData({
+                ...userData,
                 confirmPassword: e.target.value,
               })
             }
@@ -83,12 +116,13 @@ const RegisterPage: React.FC = () => {
         <Button type="submit" variant="primary" className="mt-3">
           Register
         </Button>
-        <Row className="py-3">
-          <Col>
-            Already have an account? <Link to={`/login`}>Login</Link>
-          </Col>
-        </Row>
+        {isLoading && <Loader />}
       </Form>
+      <Row className="py-3">
+        <Col>
+          Already have an account? <Link to={`/login`}>Login</Link>
+        </Col>
+      </Row>
     </FormContainer>
   );
 };

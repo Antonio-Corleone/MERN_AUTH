@@ -71,16 +71,17 @@ const LoginPage: React.FC = () => {
             }
           ></Form.Control>
         </Form.Group>
-        {isLoading && <Loader />}
+
         <Button type="submit" variant="primary" className="mt-3">
           Sign In
         </Button>
-        <Row className="py-3">
-          <Col>
-            New Customer? <Link to="/register">Register</Link>
-          </Col>
-        </Row>
+        {isLoading && <Loader />}
       </Form>
+      <Row className="py-3">
+        <Col>
+          New Customer? <Link to="/register">Register</Link>
+        </Col>
+      </Row>
     </FormContainer>
   );
 };
