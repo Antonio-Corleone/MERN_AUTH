@@ -11,7 +11,7 @@ const App: React.FC = () => {
     <>
       <Header />
       <ToastContainer />
-      <Container className="my-2">
+      <Container className="my-2 vh-100">
         <Outlet />
       </Container>
       <Footer />
